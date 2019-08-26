@@ -1,16 +1,16 @@
-# Comparatively Finetuning BERT
+# Comparatively Fine-Tuning BERT
 
 ## Introduction
-The state-of-the-art pretrained language model BERT (Bidirectional Encoder Representations from Transformers) has achieved remarkable results in many natural language understanding tasks. In general, the industry-wide adoption of transformer architectures (BERT, XLNet, etc.) marked a sharp deviation from the conventional encoder-decoder architectures in sequence-to-sequence tasks such as machine translation. Moreover, the pretrained positional embeddings, attention mechanisms, and other related layer architectures existent within these models are applicable to nearly all text processing tasks. Following this, many parties are increasingly utilizing the pretrained weights of these transformers models, and *finetuning* them to suit whatever text-related task they are trying to solve. 
+The state-of-the-art pretrained language model BERT (Bidirectional Encoder Representations from Transformers) has achieved remarkable results in many natural language understanding tasks. In general, the industry-wide adoption of transformer architectures (BERT, XLNet, etc.) marked a sharp deviation from the conventional encoder-decoder architectures in sequence-to-sequence tasks such as machine translation. Moreover, the pretrained positional embeddings, attention mechanisms, and other related layer architectures existent within these models are applicable to nearly all text processing tasks. Following this, many parties are increasingly utilizing the pretrained weights of these transformers models, and *fine-tuning* them to suit whatever text-related task they are trying to solve. 
 
 Rooting from the observations above, this repository builds on top of papers like *How to Fine-Tune BERT for Text Classification?* by Chi Sun et al. and *To Tune or Not To Tune? How About the Best of Both Worlds?* by Ran Wang et al., and specifically focuses on minimizing the network depth of a BERT model to an extent where the accuracies for **text classification** tasks are still considerably high, yet the model size isn't as catastrophic as the advertised, full 12-layer architecture.
 
-We hope that this work could help other people reduce their training time, fit their models in modest GPU and storage resources, and help them to further experiment with BERT. One key idea is to realize that sometimes we don't need the full architecture of a state-of-the-art model, but only parts of it, to achieve a sufficiently high performance on some task. This idea is even more relevant when incorporating the full architecture is costly, and this is definitely the case with BERT and other similar transformer-based models.
+We hope that this work could help other people reduce their training time, fit their models in modest GPU and storage resources, and help them to further experiment with BERT. One key idea is to realize that sometimes we don't need the full architecture of a state-of-the-art model, but only parts of it, to achieve a sufficiently high performance on some given task. This idea is even more relevant when incorporating the full architecture is costly, and this is definitely the case with BERT and other similar transformer-based models.
 
 Please note that the performance measures and any accompanying findings have been solely formulated on the classic [IMDB](https://torchtext.readthedocs.io/en/latest/datasets.html#imdb) dataset. We are *planning* to include more datasets in the near future for a more general & qualitative comparison.
 
 ## Setting Up
-1. Clone this repository: `git clone ...`
+1. Clone this repository: `git clone https://github.com/ongunuzaymacar/comparatively-finetuning-bert.git`
 2. Install PyTorch [(installation)](https://pytorch.org/get-started/locally/)
 3. Install Pytorch-Transformers: `pip install pytorch_transformers`
 4. Download the IMDB dataset: `bash download_imdb_dataset.sh`
@@ -111,53 +111,32 @@ The saved model files (`.pt`) of all models mentioned below can be located in a 
 * As observed from the graph and the numbers reported above, the biggest increase in accuracy (delta) happens going from utilizing 2 transformer blocks to 3. To make this point clearer, the amount of increase observed here is greater than the amount increase observed while going from 6 transformer blocks to 12. 
 
 ## Visualization of Attention
-Many people over the years have argued, with [evidence](https://arxiv.org/pdf/1902.10186.pdf), that attention weights don't provide consistent explanations to model predictions. Moreover, several studies showed a low correlation between model-predicted visual attention and human attention. In this repository, however, we still investigated attention patterns as attention is a key component of transformer-based models. 
+Many researchers have argued, with [evidence](https://arxiv.org/pdf/1902.10186.pdf), that attention weights don't provide consistent explanations to model predictions. Moreover, several studies showed a low correlation between model-predicted visual attention and human attention. In this repository, however, we still investigated attention patterns as attention is a key component of transformer-based models. 
 
 For a pretrained BERT model, attention weights are likely to represent the complex linguistic dependencies between tokens and hence are not very interpretable. For a finetuned BERT model on binary sentiment classification, however, the attention weights *should* be more interpretable as they are likely to reveal tokens with certain sentiment attributes (positive or negative in this case).
 
-To compute attention weights, we first took the attention weights from the last multi-head attention layer assigned to [CLS] token, then averaged each token weight across attention heads, and finally normalized across all tokens so that each individual weight is a value between 0.0 (low attention) and 1.0 (high attention). We perform this same computation twice, i) before finetuning, and ii) after finetuning. Moreover, we compute iii) delta attention, the brute difference between finetuned model and pretrained model attention weights for each token. 
+There exists several approaches to compute attention weights in transformer-based models. One conventional approach is to extract the attention weights based on [CLS] token from the last layer, average each token weight across all attention heads, and finally normalize weights across all tokens so that each individual weight is a value between 0.0 (very low attention) and 1.0 (very high attention). The `get_attention_average_last_layer()` function inside `utils/model_utils.py` corresponds to this approach. Within the same file, you can find other approaches for extracting attention weights. 
 
-For i), and ii) we have used the following color codes:
+Running `visualize_attention.py` will display highlighted test movie reviews (examples). You can play around with constants `LAYER_ID`, `HEAD_ID`, and `TOKEN_ID` to visualize attentions located elsewhere in the BERT model. You can investigate `get_normalized_attention()` function in `utils/model_utils.py` to see all possible configurations. Note that you will need to have a ready-to-go saved_model file to visualize attentions. 
 
-| Attention Weights (Score) | Color |
-| ------------------------- | ----- |
-| 0.00 - 0.20 | N/A |
-| 0.20 - 0.40 | Yellow |
-| 0.40 - 0.60 | Blue |
-| 0.60 - 0.80 | Red |
-| 0.80 - 1.00 | Purple |
+The highlight colors are based on the following criteria:
 
-For iii) we have used the following color codes:
 
-| Finetuned Attention Score - Pretrained Attention Score | Color |
-| ------------------------------------------------------ | ----- |
-| > 0.00 | Green |
-| <= 0.00 | Red |
+| Attention Weights (Score) | Description | Highlight Color |
+| ------------------------- | ----------- | --------------- |
+| 0.00 - 0.20 | Very Low Attention | N/A |
+| 0.20 - 0.40 | Low Attention |  ![#FDA895](https://placehold.it/15/FDA895/000000?text=+) |
+| 0.40 - 0.60 | Medium Attention | ![#FE7D61](https://placehold.it/15/FE7D61/000000?text=+) |
+| 0.60 - 0.80 | High Attention | ![#FC5430](https://placehold.it/15/FC5430/000000?text=+) |
+| 0.80 - 1.00 | Very High Attention | ![#FF2D00](https://placehold.it/15/FF2D00/000000?text=+) |
 
-The implementation of the color codes is in `utils/model_utils.py` and you can change it accordingly. We went with vanilla Python, as opposed to JavaScript or a graphics library, for simplicity. The below visualizations are extracted from a BERT model with only 2 transformer blocks, and hence insights are rather shallow. You can increase the number of transformer blocks to increase the complexity of the attention patterns.
+The implementation of the color codes is in `utils/visualization_utils.py` and you can change it accordingly. We went with Python package Tkinter for displaying attention scores, as opposed to JavaScript or a graphics library, for simplicity. The below visualizations are extracted from a BERT model with all 12 transformer blocks and 12 attention heads, but smaller models also have the potential to display meaningful insights.
 
 <p align="center">
-<img src="assets/example_test_sentence.png">
-</p>
-
-<p align="center">
-<img src="assets/prefinetuning-attention-visualization.png">
-</p>
-
-<p align="center">
-<img src="assets/postfinetuning-attention-visualization.png">
-</p>
-
-<p align="center">
-<img src="assets/delta-attention-visualization.png">
+<img src="assets/attention_visualization.png">
 </p>
 
 The visualizations we have represented here should not be taken for granted, but we propose that they could be used alongside other conventional metrics to assess model performance. 
-
-## Future Work
-* Assign higher learning rates for higher (on-top of BERT) layers.
-* Try different network architectures such as **Highway Networks** on top of BERT.
-* Implement reproducibility for PyTorch, see this [issue](https://github.com/pytorch/pytorch/issues/7068).
 
 ## Resources
 * How to Fine-Tune BERT for Text Classification by Chi Sun, Xipeng Qiu, Yige Xu, and Xuanjing Huang. [(arXiv)](https://arxiv.org/abs/1905.05583)

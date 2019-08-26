@@ -49,17 +49,17 @@ DROPOUT_RATE = 0.20
 AGGREGATE_ON_CLS_TOKEN = True
 CONCATENATE_HIDDEN_STATES = False
 
-SAVED_MODEL_PATH = 'saved_models/finetuned-bert-model-12VA.pt'
+SAVED_MODEL_PATH = 'finetuned-bert-model-12VA.pt'
 APPLY_CLEANING = False
 TRUNCATION_METHOD = 'head-only'
 NUM_WORKERS = 0
 
 ATTENTION_VISUALIZATION_METHOD = 'custom'  # specify which layer, head, and token yourself
-LAYER_ID = 9
-HEAD_ID = 6
+LAYER_ID = 11
+HEAD_ID = 11
 TOKEN_ID = 0
-EXCLUDE_SPECIAL_TOKENS = True  # [CLS] and [SEP]
-NUM_EXAMPLES = 20
+EXCLUDE_SPECIAL_TOKENS = True  # exclude [CLS] and [SEP] tokens
+NUM_EXAMPLES = 5
 
 # Initialize model
 model = FineTunedBert(pretrained_model_name=PRETRAINED_MODEL_NAME,
