@@ -1,13 +1,13 @@
 # Comparatively Fine-Tuning BERT
 
 ## Introduction
-The state-of-the-art pretrained language model BERT (Bidirectional Encoder Representations from Transformers) has achieved remarkable results in many natural language understanding tasks. In general, the industry-wide adoption of transformer architectures (BERT, XLNet, etc.) marked a sharp deviation from the conventional encoder-decoder architectures in sequence-to-sequence tasks such as machine translation. Moreover, the pretrained positional embeddings, attention mechanisms, and other related layer architectures existent within these models are applicable to nearly all text processing tasks. Following this, many parties are increasingly utilizing the pretrained weights of these transformers models, and *fine-tuning* them to suit whatever text-related task they are trying to solve. 
+The state-of-the-art pretrained language model BERT (Bidirectional Encoder Representations from Transformers) has achieved remarkable results in many natural language understanding tasks. In general, the industry-wide adoption of transformer architectures (BERT, XLNet, etc.) marked a sharp deviation from the conventional encoder-decoder architectures in sequence-to-sequence tasks such as machine translation. Following this, many parties are increasingly utilizing the pretrained weights of these language representation models, and *fine-tuning* them to suit whatever text-related task they are trying to solve. 
 
 Rooting from the observations above, this repository builds on top of papers like *How to Fine-Tune BERT for Text Classification?* by Chi Sun et al. and *To Tune or Not To Tune? How About the Best of Both Worlds?* by Ran Wang et al., and specifically focuses on minimizing the network depth of a BERT model to an extent where the accuracies for **text classification** tasks are still considerably high, yet the model size isn't as catastrophic as the advertised, full 12-layer architecture.
 
 We hope that this work could help other people reduce their training time, fit their models in modest GPU and storage resources, and help them to further experiment with BERT. One key idea is to realize that sometimes we don't need the full architecture of a state-of-the-art model, but only parts of it, to achieve a sufficiently high performance on some given task. This idea is even more relevant when incorporating the full architecture is costly, and this is definitely the case with BERT and other similar transformer-based models.
 
-Please note that the performance measures and any accompanying findings have been solely formulated on the classic [IMDB](https://torchtext.readthedocs.io/en/latest/datasets.html#imdb) dataset. We are *planning* to include more datasets in the near future for a more general & qualitative comparison.
+Please note that the performance measures and any accompanying findings have been solely formulated on the classic [IMDB](https://ai.stanford.edu/~amaas/data/sentiment/) dataset. We are *planning* to include more datasets in the near future for a more general & qualitative comparison.
 
 ## Setting Up
 1. Clone this repository: `git clone https://github.com/ongunuzaymacar/comparatively-finetuning-bert.git`
@@ -17,10 +17,10 @@ Please note that the performance measures and any accompanying findings have bee
 
 ## Important Implementation Notes
 * For fairness of comparison, we are using the following components:
-    - A batch size of *32* is used for models with number of transformer blocks lesser or equal to *4*, a batch size of *16* is used for models with number of transformer blocks *5* or *6*, and finally a batch size of *8* is used for the complete BERT model. This inverse relationship between the batch size hyperparameter and the complexity (hence size) of the model was adapted in order to fit the training processes into GPU. 
-    - Adam optimizer that utilizes the same grouped parameters with the same arguments across all *finetuned* & *baseline* model trainings. In particular, we have chosen to fine-tune BERT layers with a lower learning rate of **3e-5**, and a fixed weight decay of **0.01** (for *most* parameters), and to optimize all other custom layers on top with a conventional learning rate of *1e-3* without no decay. As suggested in the paper, such a lower learning rate for BERT parameters is preferred over an aggressive one to overcome the common problem of **catastrophic forgetting** (the forgetting of pretrained knowledge) in transfer learning applications. 
+    - A batch size of **32** is used for models with number of transformer blocks lesser or equal to *4*, a batch size of **16** is used for models with number of transformer blocks *5* or *6*, and finally a batch size of **8** is used for the complete BERT model. This inverse relationship between the batch size hyperparameter and the complexity (hence size) of the model was adapted in order to fit the training processes into GPU. 
+    - Adam optimizer that utilizes the same grouped parameters with the same arguments across all *finetuned* & *baseline* model trainings. In particular, we have chosen to fine-tune BERT layers with a lower learning rate of **3e-5**, and a fixed weight decay of **0.01** (for *most* parameters), and to optimize all other custom layers on top with a conventional learning rate of **1e-3** without no decay. As suggested in the paper, such a lower learning rate for BERT parameters is preferred over an aggressive one to overcome the common problem of **catastrophic forgetting** (the forgetting of pretrained knowledge) in transfer learning applications. 
     - GPU choice of **Tesla K80** with a maximum number of **10** epochs.
-    - If applicable, a single layer, bidirectional configuration for LSTM layers with a hidden size of *128*.
+    - If applicable, a single layer, bidirectional configuration for LSTM layers with a hidden size of **128**.
 
 * All BERT models are pretrained from the `bert-base-cased` model weights. For more information about this and other models, check [here](https://huggingface.co/pytorch-transformers/pretrained_models.html).
 * The hidden states extracted from finetuned models, whether directly acquired from the pretrained BERT model or acquired from the additional recurrent (LSTM) layers, undergo a dropout of default rate **0.20**.
@@ -117,7 +117,7 @@ For a pretrained BERT model, attention weights are likely to represent the compl
 
 There exists several approaches to compute attention weights in transformer-based models. One conventional approach is to extract the attention weights based on [CLS] token from the last layer, average each token weight across all attention heads, and finally normalize weights across all tokens so that each individual weight is a value between 0.0 (very low attention) and 1.0 (very high attention). The `get_attention_average_last_layer()` function inside `utils/model_utils.py` corresponds to this approach. Within the same file, you can find other approaches for extracting attention weights. 
 
-Running `visualize_attention.py` will display highlighted test movie reviews (examples). You can play around with constants `LAYER_ID`, `HEAD_ID`, and `TOKEN_ID` to visualize attentions located elsewhere in the BERT model. You can investigate `get_normalized_attention()` function in `utils/model_utils.py` to see all possible configurations. Note that you will need to have a ready-to-go saved_model file to visualize attentions. 
+Running `visualize_attention.py` will display highlighted test movie reviews (examples). You can play around with constants `LAYER_ID`, `HEAD_ID`, and `TOKEN_ID` to visualize attentions located elsewhere in the BERT model. You can investigate `get_normalized_attention()` function in `utils/model_utils.py` to see all possible configurations. Note that you will need to have a ready-to-go saved model file (`.pt`) to visualize attentions. 
 
 The highlight colors are based on the following criteria:
 
@@ -130,7 +130,7 @@ The highlight colors are based on the following criteria:
 | 0.60 - 0.80 | High Attention | ![#FC5430](https://placehold.it/15/FC5430/000000?text=+) |
 | 0.80 - 1.00 | Very High Attention | ![#FF2D00](https://placehold.it/15/FF2D00/000000?text=+) |
 
-The implementation of the color codes is in `utils/visualization_utils.py` and you can change it accordingly. We went with Python package Tkinter for displaying attention scores, as opposed to JavaScript or a graphics library, for simplicity. The below visualizations are extracted from a BERT model with all 12 transformer blocks and 12 attention heads, but smaller models also have the potential to display meaningful insights.
+The implementation of the color codes is in `utils/visualization_utils.py` and you can change it accordingly. We went with the Python package `Tkinter` for displaying attention scores, as opposed to JavaScript or a graphics library, for simplicity. The below visualizations are extracted from a BERT model with all 12 transformer blocks and 12 attention heads, but smaller models also have the potential to display meaningful insights.
 
 <p align="center">
 <img src="assets/attention_visualization.png">
@@ -139,8 +139,8 @@ The implementation of the color codes is in `utils/visualization_utils.py` and y
 The visualizations we have represented here should not be taken for granted, but we propose that they could be used alongside other conventional metrics to assess model performance. 
 
 ## Resources
-* How to Fine-Tune BERT for Text Classification by Chi Sun, Xipeng Qiu, Yige Xu, and Xuanjing Huang. [(arXiv)](https://arxiv.org/abs/1905.05583)
-* To Tune or Not To Tune? How About the Best of Both Worlds? by Ran Wang, Haibo Su, Chunye Wang, Kailin Ji, and Jupeng Ding [(arXiv)](https://arxiv.org/abs/1907.05338)
-* Research of LSTM Additions on Top of SQuAD BERT Hidden Transform Layers by Adam Thorne, Zac Farnsworth, and Oscar Matus [(web.stanford)](http://web.stanford.edu/class/cs224n/reports/default/15718571.pdf)
+* *How to Fine-Tune BERT for Text Classification* by Chi Sun, Xipeng Qiu, Yige Xu, and Xuanjing Huang. [(arXiv)](https://arxiv.org/abs/1905.05583)
+* *To Tune or Not To Tune? How About the Best of Both Worlds?* by Ran Wang, Haibo Su, Chunye Wang, Kailin Ji, and Jupeng Ding [(arXiv)](https://arxiv.org/abs/1907.05338)
+* *Research of LSTM Additions on Top of SQuAD BERT Hidden Transform Layers* by Adam Thorne, Zac Farnsworth, and Oscar Matus [(web.stanford)](http://web.stanford.edu/class/cs224n/reports/default/15718571.pdf)
 * [Pytorch Transformers](https://github.com/huggingface/pytorch-transformers)
 * [BertViz](https://github.com/jessevig/bertviz)
