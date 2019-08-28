@@ -2,6 +2,13 @@ import tkinter as tk
 
 
 def visualize_attention(window_name, tokens_and_weights):
+    """
+    Function to visualize the attention mechanism through token highlighting.
+
+    @param (str) window_name: screen-name for the Tkinter window
+    @param (list) tokens_and_weights: list containing tuples as elements with tokens and the
+           corresponding attention weights, in the form (token, weight); ex. ('awesome', 0.67)
+    """
     root = tk.Tk()
     root.title(window_name)
     text_widget = tk.Text(root)
