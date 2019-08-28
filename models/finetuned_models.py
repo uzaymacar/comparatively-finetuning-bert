@@ -2,13 +2,14 @@
 Class file for FineTunedBert(), an architecture that finetunes a pretrained BERT model. It provides
 practical ways to configure pretraining options, and add experimental components on top. For ease of
 notation, the following abbreviations are used in comments next to some tensor operations:
-i)    B  = batch size,
-ii)   P  = maximum number of positional embeddings from BERT tokenizer (default: 512),
-iii)  H  = hidden size dimension in pretrained BERT layers (default: 768),
-iv)   H* = hidden size dimension for the additional recurrent (LSTM) layer,
-v)    H' = hidden size dimension when multiple BERT layers are concatenated, H' = H iff K = 1
-vi)   K  = number of pretrained BERT layers utilized out of 12,
-vii)  N  = number of heads in multi-head, self-attention mechanism of BERT out of 12
+i)     B  = batch size,
+ii)    P  = maximum number of positional embeddings from BERT tokenizer (default: 512),
+iii)   H  = hidden size dimension in pretrained BERT layers (default: 768),
+iv)    H* = hidden size dimension for the additional recurrent (LSTM) layer,
+v)     H' = hidden size dimension when multiple BERT layers are concatenated, H' = H iff K = 1
+vi)    L  = number of recurrent layers
+vi)    K  = number of pretrained BERT layers utilized out of 12,
+viii)  N  = number of heads in multi-head, self-attention mechanism of BERT out of 12
 """
 
 import logging
@@ -24,11 +25,27 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 class FineTunedBert(nn.Module):
+    """
+    Finetuning model that utilizes BERT tokenizer, pretrained BERT embedding, pretrained BERT
+    encoders, an optional recurrent neural network  choice of LSTM, dropout, and finally a dense
+    layer for classification.
+
+    @param (str) pretrained_model_name: name of the pretrained BERT model for tokenizing input
+           sequences, extracting vector representations for each token, [...]
+       @param (int) max_tokenization_length: number of tokens to pad / truncate input sequences to
+       @param (int) num_classes: number of classes to distinct between for classification; specify
+              2 for binary classification (default: 1)
+       @param (int) num_recurrent_layers: number of LSTM layers to utilize (default: 1)
+       @param (bool) use_bidirectional: whether to use a bidirectional LSTM or not (default: False)
+       @param (int) hidden_size: number of recurrent units in each LSTM cell (default: 128)
+       @param (float) dropout_rate: possibility of each neuron to be discarded (default: 0.10)
+       @param (bool) use_gpu: whether to utilize GPU (CUDA) or not (default: False)
+       """
     def __init__(self, pretrained_model_name, num_pretrained_bert_layers, max_tokenization_length,
                  num_classes=1, top_down=True, num_recurrent_layers=1, use_bidirectional=False,
                  hidden_size=128, reinitialize_pooler_parameters=False, dropout_rate=0.10,
                  aggregate_on_cls_token=True, concatenate_hidden_states=False, use_gpu=False):
-        """Pretrained BERT model to be finetuned for text (sentiment) classification"""
+        """"""
         super(FineTunedBert, self).__init__()
         self.num_recurrent_layers = num_recurrent_layers
         self.use_bidirectional = use_bidirectional

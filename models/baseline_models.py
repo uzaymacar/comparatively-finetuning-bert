@@ -1,3 +1,13 @@
+"""
+Class file for baseline models, conventional many-to-one architectures, for comparison. For ease of
+notation, the following abbreviations are used in comments next to some tensor operations:
+i)    B  = batch size,
+ii)   P  = maximum number of positional embeddings from BERT tokenizer (default: 512),
+iii)  H  = hidden size dimension in pretrained BERT layers (default: 768),
+iv)   H* = hidden size dimension for the additional recurrent (LSTM) layer,
+v)    L  = number of recurrent layers
+"""
+
 import logging
 import torch
 import torch.nn as nn
@@ -6,10 +16,26 @@ from pytorch_transformers import BertConfig, BertTokenizer, BertModel
 
 
 class SimpleRNN(nn.Module):
+    """
+    Simple model that utilizes BERT tokenizer, custom embedding, a recurrent neural network choice
+    of LSTM, dropout, and finally a dense layer for classification.
+
+    @param (str) pretrained_model_name_for_tokenizer: name of the pretrained BERT model for
+           tokenizing input sequences
+    @param (int) max_vocabulary_size: upper limit for number of tokens in the embedding layer
+    @param (int) max_tokenization_length: number of tokens to pad / truncate input sequences to
+    @param (int) embedding_dim: dimension size of each token representation for the embedding layer
+    @param (int) num_classes: number of classes to distinct between for classification; specify
+           2 for binary classification (default: 1)
+    @param (int) num_recurrent_layers: number of LSTM layers to utilize (default: 1)
+    @param (bool) use_bidirectional: whether to use a bidirectional LSTM or not (default: False)
+    @param (int) hidden_size: number of recurrent units in each LSTM cell (default: 128)
+    @param (float) dropout_rate: possibility of each neuron to be discarded (default: 0.10)
+    @param (bool) use_gpu: whether to utilize GPU (CUDA) or not (default: False)
+    """
     def __init__(self, pretrained_model_name_for_tokenizer, max_vocabulary_size,
                  max_tokenization_length, embedding_dim, num_classes=1, num_recurrent_layers=1,
                  use_bidirectional=False, hidden_size=128, dropout_rate=0.10, use_gpu=False):
-        """Pretrained BERT model to be finetuned for text (sentiment) classification"""
         super(SimpleRNN, self).__init__()
         self.num_recurrent_layers = num_recurrent_layers
         self.use_bidirectional = use_bidirectional
@@ -98,10 +124,24 @@ class SimpleRNN(nn.Module):
 
 
 class SimpleRNNWithBERTEmbeddings(nn.Module):
+    """
+    Simple model that utilizes BERT tokenizer, pretrained BERT embedding, a recurrent neural network
+    choice of LSTM, dropout, and finally a dense layer for classification.
+
+    @param (str) pretrained_model_name_for_embeddings: name of the pretrained BERT model for
+           both tokenizing input sequences and extracting vector representations for each token
+    @param (int) max_tokenization_length: number of tokens to pad / truncate input sequences to
+    @param (int) num_classes: number of classes to distinct between for classification; specify
+           2 for binary classification (default: 1)
+    @param (int) num_recurrent_layers: number of LSTM layers to utilize (default: 1)
+    @param (bool) use_bidirectional: whether to use a bidirectional LSTM or not (default: False)
+    @param (int) hidden_size: number of recurrent units in each LSTM cell (default: 128)
+    @param (float) dropout_rate: possibility of each neuron to be discarded (default: 0.10)
+    @param (bool) use_gpu: whether to utilize GPU (CUDA) or not (default: False)
+    """
     def __init__(self, pretrained_model_name_for_embeddings, max_tokenization_length,
                  num_classes=1, num_recurrent_layers=1, use_bidirectional=False,
                  hidden_size=128, dropout_rate=0.10, use_gpu=False):
-        """Pretrained BERT model to be finetuned for text (sentiment) classification"""
         super(SimpleRNNWithBERTEmbeddings, self).__init__()
         self.num_recurrent_layers = num_recurrent_layers
         self.use_bidirectional = use_bidirectional
