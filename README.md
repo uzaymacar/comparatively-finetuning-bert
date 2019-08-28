@@ -7,7 +7,7 @@ Rooting from the observations above, this repository builds on top of papers lik
 
 We hope that this work could help other people reduce their training time, fit their models in modest GPU and storage resources, and help them to further experiment with BERT. One key idea is to realize that sometimes we don't need the full architecture of a state-of-the-art model, but only parts of it, to achieve a sufficiently high performance on some given task. This idea is even more relevant when incorporating the full architecture is costly, and this is definitely the case with BERT and other similar transformer-based models.
 
-Please note that the performance measures and any accompanying findings have been solely formulated on the classic [IMDB](https://ai.stanford.edu/~amaas/data/sentiment/) dataset. We are *planning* to include more datasets in the near future for a more general & qualitative comparison.
+Please note that the performance measures and any accompanying findings have been solely formulated on the classic [IMDB](https://ai.stanford.edu/~amaas/data/sentiment/) dataset, and hence within a **binary sentiment classification** framework. We are *planning* to include more datasets in the near future for a more general & qualitative comparison.
 
 ## Setting Up
 1. Clone this repository: `git clone https://github.com/ongunuzaymacar/comparatively-finetuning-bert.git`
@@ -142,5 +142,5 @@ The visualizations we have represented here should not be taken for granted, but
 * *How to Fine-Tune BERT for Text Classification* by Chi Sun, Xipeng Qiu, Yige Xu, and Xuanjing Huang. [(arXiv)](https://arxiv.org/abs/1905.05583)
 * *To Tune or Not To Tune? How About the Best of Both Worlds?* by Ran Wang, Haibo Su, Chunye Wang, Kailin Ji, and Jupeng Ding [(arXiv)](https://arxiv.org/abs/1907.05338)
 * *Research of LSTM Additions on Top of SQuAD BERT Hidden Transform Layers* by Adam Thorne, Zac Farnsworth, and Oscar Matus [(web.stanford)](http://web.stanford.edu/class/cs224n/reports/default/15718571.pdf)
-* [Pytorch Transformers](https://github.com/huggingface/pytorch-transformers)
+* [PyTorch Transformers](https://github.com/huggingface/pytorch-transformers)
 * [BertViz](https://github.com/jessevig/bertviz)
