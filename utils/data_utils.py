@@ -16,6 +16,7 @@ lemmatizer = WordNetLemmatizer()
 
 
 def clean_text(text):
+    """Function to clean text using RegEx operations, removal of stopwords, and lemmatization."""
     text = re.sub(r'[^\w\s]', '', text, re.UNICODE)
     text = text.lower()
     text = [lemmatizer.lemmatize(token) for token in text.split(' ')]
@@ -30,19 +31,19 @@ def clean_text(text):
 def tokenize(text, tokenizer, apply_cleaning=False, max_tokenization_length=512,
              truncation_method='head-only', split_head_density=0.5):
     """
-    Function to tokenize a given text, to be used as the @tokenize argument of an
-    torchtext.data.Field() object.
+    Function to tokenize a given text.
 
     @param (str) text: a sequence of words to be tokenized
     @param (pytorch_transformers.BertTokenizer) tokenizer: tokenizer with pre-figured mappings
-    @param (bool) apply_cleaning: whether or not to perform common cleaning operations on the texts
+    @param (bool) apply_cleaning: whether or not to perform common cleaning operations on texts;
+           note that enabling only makes sense if language of the task is English (default: False)
     @param (int) max_tokenization_length: maximum number of positional embeddings, or the sequence
            length of an example that will be fed to BERT model (default: 512)
     @param (str) truncation_method: method that will be applied in case the text exceeds
            @max_tokenization_length; currently implemented methods include 'head-only', 'tail-only',
            and 'head+tail' (default: 'head-only')
     @param (float) split_head_density: weight on head when splitting between head and tail, only
-           applicable if @truncation_method='head+tail'
+           applicable if @truncation_method='head+tail' (default: 0.5)
     @return (list) input_ids: the encoded integer indexes of the given text; note that
             get_data_iterators() function converts this to a Tensor under the hood
     """
@@ -88,7 +89,7 @@ def tokenize(text, tokenizer, apply_cleaning=False, max_tokenization_length=512,
 
 def get_features(input_ids, tokenizer, device):
     """
-    Function to get BERT-related features, and helps to build the total input representation
+    Function to get BERT-related features, and helps to build the total input representation.
 
     @param (Tensor) input_ids: the encoded integer indexes of a batch, with shape: (B, P)
     @param (pytorch_transformers.BertTokenizer) tokenizer: tokenizer with pre-figured mappings
@@ -129,7 +130,11 @@ def get_features(input_ids, tokenizer, device):
 
 
 class IMDBDataset(Dataset):
-    """IMDB Dataset for easily iterating over and performing common operations"""
+    """
+    IMDB Dataset for easily iterating over and performing common operations.
+
+
+    """
     def __init__(self, input_directory, tokenizer, apply_cleaning, max_tokenization_length,
                  truncation_method='head-only', split_head_density=0.5, device='cpu'):
         super(IMDBDataset).__init__()
