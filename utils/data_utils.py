@@ -186,7 +186,7 @@ class IMDBDataset(Dataset):
             os.mkdir(os.path.join(self.positive_path, 'tokenized_and_encoded'))
 
             # Clean & tokenize positive reviews
-            for i in trange(len(self.positive_files), desc='Tokenizing Positive Reviews',
+            for i in trange(len(self.positive_files), desc='Tokenizing & Encoding Positive Reviews',
                             leave=True):
                 file = self.positive_files[i]
                 with open(os.path.join(self.positive_path, file), mode='r', encoding='utf8') as f:
@@ -211,7 +211,7 @@ class IMDBDataset(Dataset):
             os.mkdir(os.path.join(self.negative_path, 'tokenized_and_encoded'))
 
             # Clean & tokenize negative reviews
-            for i in trange(len(self.negative_files), desc='Tokenizing Negative Reviews',
+            for i in trange(len(self.negative_files), desc='Tokenizing & Encoding Negative Reviews',
                             leave=True):
                 file = self.negative_files[i]
                 with open(os.path.join(self.negative_path, file), mode='r', encoding='utf8') as f:

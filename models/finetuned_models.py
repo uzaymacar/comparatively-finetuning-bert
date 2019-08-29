@@ -18,7 +18,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 
 from pytorch_transformers import BertConfig, BertTokenizer, BertModel
-from utils.data_utils import tokenize, get_features
+from utils.data_utils import tokenize_and_encode, get_features
 
 # Set logging level to INFO to print number of learnable parameters
 logging.getLogger().setLevel(logging.INFO)
@@ -167,10 +167,10 @@ class FineTunedBert(nn.Module):
     def get_bert_attention(self, raw_sentence, device):
         """Function for getting the multi-head self-attention output from pretrained BERT"""
         # Tokenize & encode raw sentence
-        x = tokenize(text=raw_sentence,                                        # (P)
-                     tokenizer=self.get_tokenizer(),
-                     max_tokenization_length=self.config.max_position_embeddings,
-                     truncation_method='head-only')
+        x = tokenize_and_encode(text=raw_sentence,                             # (P)
+                                tokenizer=self.get_tokenizer(),
+                                max_tokenization_length=self.config.max_position_embeddings,
+                                truncation_method='head-only')
         # Convert the tokenized list to a Tensor
         x = torch.tensor(data=x, device=device)
         # Reshape input for BERT output
