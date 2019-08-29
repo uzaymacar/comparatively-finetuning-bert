@@ -1,3 +1,8 @@
+"""
+Script for training, testing, and saving finetuned, binary classification models based on pretrained
+BERT parameters, for the IMDB dataset.
+"""
+
 import logging
 import random
 import numpy as np

@@ -1,3 +1,8 @@
+"""
+Script containing various utilities related to model training, testing, and extraction of attention
+weights.
+"""
+
 import logging
 import torch
 from utils.data_utils import get_features
@@ -12,7 +17,17 @@ def binary_accuracy(y_pred, y_true):
 
 
 def train(model, iterator, criterion, optimizer, device, include_bert_masks=True):
-    """Function to carry out training process"""
+    """
+    Function to carry out the training process
+
+    @param (torch.nn.Module) model: model object to be trained
+    @param (torch.utils.data.DataLoader) iterator: data loader to iterate over batches
+    @param (torch.nn.[...]) criterion: loss function to backpropagate on
+    @param (torch.optim.[...]) optimizer: optimization algorithm
+    @param (str) device: 'cpu' or 'gpu', decides where to store the outputted tensors
+    @param (bool) include_bert_masks: whether to include token type IDs & attention masks alongside
+           input IDs when passing to model or not (default: True)
+    """
     epoch_loss, epoch_acc = 0.0, 0.0
 
     for batch in iterator:
@@ -47,7 +62,16 @@ def train(model, iterator, criterion, optimizer, device, include_bert_masks=True
 
 
 def test(model, iterator, criterion, device, include_bert_masks=True):
-    """Function to carry out testing (or validation) process"""
+    """
+    Function to carry out the testing (or validation) process
+
+    @param (torch.nn.Module) model: model object to be trained
+    @param (torch.utils.data.DataLoader) iterator: data loader to iterate over batches
+    @param (torch.nn.[...]) criterion: loss function to backpropagate on
+    @param (str) device: 'cpu' or 'gpu', decides where to store the outputted tensors
+    @param (bool) include_bert_masks: whether to include token type IDs & attention masks alongside
+           input IDs when passing to model or not (default: True)
+    """
     epoch_loss, epoch_acc = 0.0, 0.0
 
     with torch.no_grad():
@@ -81,7 +105,6 @@ def get_attention_nth_layer_mth_head_kth_token(attention_outputs, n, m, k, avera
     Function to compute attention weights by:
     i)   Take the attention weights from the nth multi-head attention layer assigned to kth token
     ii)  Take the mth attention head
-    iii) Normalize (Z-Score) across all tokens
     """
     if average_heads is True and m is not None:
         logging.warning("Argument passed for param @m will be ignored because of head averaging.")
@@ -102,9 +125,6 @@ def get_attention_nth_layer_mth_head_kth_token(attention_outputs, n, m, k, avera
     else:
         attention_outputs = attention_outputs[m, :]                            # (P)
 
-    # Normalize across all tokens
-    mean, std = attention_outputs.mean(), attention_outputs.std()
-    attention_outputs = (attention_outputs - mean) / std
     return attention_outputs
 
 
@@ -113,7 +133,6 @@ def get_attention_average_first_layer(attention_outputs):
     Function to compute attention weights by:
     i)   Take the attention weights from the first multi-head attention layer assigned to CLS
     ii)  Average each token across attention heads
-    iii) Normalize (Z-Score) across tokens
     """
     return get_attention_nth_layer_mth_head_kth_token(attention_outputs=attention_outputs,
                                                       n=0, m=None, k=0,
@@ -125,7 +144,6 @@ def get_attention_average_last_layer(attention_outputs):
     Function to compute attention weights by
     i)   Take the attention weights from the last multi-head attention layer assigned to CLS
     ii)  Average each token across attention heads
-    iii) Normalize (Z-Score) across tokens
     """
     return get_attention_nth_layer_mth_head_kth_token(attention_outputs=attention_outputs,
                                                       n=-1, m=None, k=0,
@@ -134,8 +152,24 @@ def get_attention_average_last_layer(attention_outputs):
 
 def get_normalized_attention(model, raw_sentence, method='last_layer_heads_average',
                              n=None, m=None, k=None, exclude_special_tokens=True,
-                             normalization_method='min-max', device='cpu'):
-    """Function to get the normalized version of the attention output of a FineTunedBert() model"""
+                             normalization_method='normal', device='cpu'):
+    """
+    Function to get the normalized version of the attention output of a FineTunedBert() model
+
+    @param (torch.nn.Module) model: FineTunedBert() model to visualize attention weights on
+    @param (str) raw_sentence: sentence in string format, preferably from the test distribution
+    @param (str) method: method name specifying the attention output configuration, possible values
+           are 'first_layer_heads_average', 'last_layer_heads_average', 'nth_layer_heads_average',
+           'nth_layer_mth_head', and 'custom' (default: 'last_layer_heads_average')
+    @param (int) n: layer no. (default: None)
+    @param (int) m: head no. (default: None)
+    @param (int) k: token no. (default: None)
+    @param (bool) exclude_special_tokens: whether to exclude special tokens such as [CLS] and [SEP]
+           from attention weights computation or not (default: True)
+    @param (str) normalization_method: the normalization method to be applied on attention weights,
+           possible values include 'min-max' and 'normal' (default: 'normal')
+    @param (str) device: 'cpu' or 'gpu', decides where to store the outputted tensors
+    """
     if None in [n, m, k] and method == 'custom':
         raise ValueError("Must pass integer argument for params @n, @m, and @k " +
                          "if method is 'nth_layer_mth_head_kth_token'")
@@ -177,11 +211,14 @@ def get_normalized_attention(model, raw_sentence, method='last_layer_heads_avera
         attention_weights = get_attention_nth_layer_mth_head_kth_token(
             attention_outputs=attention_outputs,
             n=n, m=m, k=0,
-            average_heads=False)
+            average_heads=False
+        )
     elif method == 'custom':
-        attention_weights = get_attention_nth_layer_mth_head_kth_token(attention_outputs=attention_outputs,
-                                                                       n=n, m=m, k=k,
-                                                                       average_heads=False)
+        attention_weights = get_attention_nth_layer_mth_head_kth_token(
+            attention_outputs=attention_outputs,
+            n=n, m=m, k=k,
+            average_heads=False
+        )
 
     # Remove the beginning [CLS] & ending [SEP] tokens for better intuition
     if exclude_special_tokens:
@@ -195,7 +232,7 @@ def get_normalized_attention(model, raw_sentence, method='last_layer_heads_avera
 
     # ii) Z-Score Normalization
     elif normalization_method == 'normal':
-        mu, std = attention_weights.mean(), attention_weights.median()
+        mu, std = attention_weights.mean(), attention_weights.std()
         attention_weights = (attention_weights - mu) / std
 
     # Convert tensor to NumPy array

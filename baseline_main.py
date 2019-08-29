@@ -1,3 +1,8 @@
+"""
+Script for training, testing, and saving baseline, binary classification models for the IMDB
+dataset.
+"""
+
 import logging
 import torch
 import torch.nn as nn

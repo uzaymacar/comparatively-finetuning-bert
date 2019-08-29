@@ -32,20 +32,30 @@ class FineTunedBert(nn.Module):
 
     @param (str) pretrained_model_name: name of the pretrained BERT model for tokenizing input
            sequences, extracting vector representations for each token, [...]
-       @param (int) max_tokenization_length: number of tokens to pad / truncate input sequences to
-       @param (int) num_classes: number of classes to distinct between for classification; specify
-              2 for binary classification (default: 1)
-       @param (int) num_recurrent_layers: number of LSTM layers to utilize (default: 1)
-       @param (bool) use_bidirectional: whether to use a bidirectional LSTM or not (default: False)
-       @param (int) hidden_size: number of recurrent units in each LSTM cell (default: 128)
-       @param (float) dropout_rate: possibility of each neuron to be discarded (default: 0.10)
-       @param (bool) use_gpu: whether to utilize GPU (CUDA) or not (default: False)
-       """
+    @param (int) num_pretrained_bert_layers: number of BERT Encoder layers to be utilized
+    @param (int) max_tokenization_length: maximum number of positional embeddings, or the sequence
+           length of an example that will be fed to BERT model (default: 512)
+    @param (int) num_classes: number of classes to distinct between for classification; specify
+           2 for binary classification (default: 1)
+    @param (bool) top_down: whether to assign parameters (weights and biases) in order or
+           backwards (default: True)
+    @param (int) num_recurrent_layers: number of LSTM layers to utilize (default: 1)
+    @param (bool) use_bidirectional: whether to use a bidirectional LSTM or not (default: False)
+    @param (int) hidden_size: number of recurrent units in each LSTM cell (default: 128)
+    @param (bool) reinitialize_pooler_parameters: whether to use the pretrained pooler parameters
+           or initialize weights as ones and biases zeros and train for scratch (default: False)
+    @param (float) dropout_rate: possibility of each neuron to be discarded (default: 0.10)
+    @param (bool) aggregate_on_cls_token: whether to pool on only the hidden states of the [CLS]
+           token for classification or on the hidden states of all (512) tokens (default: True)
+    @param (bool) concatenate_hidden_states: whether to concatenate all the available hidden states
+           outputted by the embedding and encoder layers (K+1) or only use the latest hidden state
+           (default: False)
+    @param (bool) use_gpu: whether to utilize GPU (CUDA) or not (default: False)
+    """
     def __init__(self, pretrained_model_name, num_pretrained_bert_layers, max_tokenization_length,
                  num_classes=1, top_down=True, num_recurrent_layers=1, use_bidirectional=False,
                  hidden_size=128, reinitialize_pooler_parameters=False, dropout_rate=0.10,
                  aggregate_on_cls_token=True, concatenate_hidden_states=False, use_gpu=False):
-        """"""
         super(FineTunedBert, self).__init__()
         self.num_recurrent_layers = num_recurrent_layers
         self.use_bidirectional = use_bidirectional
@@ -249,4 +259,3 @@ class FineTunedBert(nn.Module):
             logits = self.clf(pooled_output)                                   # (B, num_classes)
 
         return logits                                                          # (B, num_classes)
-

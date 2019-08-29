@@ -1,3 +1,7 @@
+"""
+Script for visualizing attention mechanisms within BERT.
+"""
+
 import logging
 import random
 import re

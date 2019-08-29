@@ -1,3 +1,10 @@
+"""
+Script containing utilities for (attention) visualizations.
+NOTE: If you are using macOS, Tkinter might crash your computer depending on your local Python,
+Tkinter, and operating system versions. Check https://www.python.org/download/mac/tcltk/ for more
+information.
+"""
+
 import tkinter as tk
 
 
