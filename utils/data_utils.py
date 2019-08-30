@@ -99,7 +99,7 @@ def get_features(input_ids, tokenizer, device):
 
     @param (Tensor) input_ids: the encoded integer indexes of a batch, with shape: (B, P)
     @param (pytorch_transformers.BertTokenizer) tokenizer: tokenizer with pre-figured mappings
-    @param (str) device: 'cpu' or 'gpu', decides where to store the outputted tensors
+    @param (torch.device) device: 'cpu' or 'gpu', decides where to store the outputted tensors
     @return (Tensor, Tensor) token_type_ids, attention_mask: features describe token type with
             a 0 for the first sentence and a 1 for the pair sentence; enable attention on a
             particular token with a 1 or disable it with a 0
@@ -150,7 +150,7 @@ class IMDBDataset(Dataset):
            and 'head+tail' (default: 'head-only')
     @param (float) split_head_density: weight on head when splitting between head and tail, only
            applicable if @truncation_method='head+tail' (default: 0.5)
-    @param (str) device: 'cpu' or 'gpu', decides where to store the data tensors
+    @param (torch.device) device: 'cpu' or 'gpu', decides where to store the data tensors
 
     """
     def __init__(self, input_directory, tokenizer, apply_cleaning, max_tokenization_length,

@@ -24,7 +24,7 @@ def train(model, iterator, criterion, optimizer, device, include_bert_masks=True
     @param (torch.utils.data.DataLoader) iterator: data loader to iterate over batches
     @param (torch.nn.[...]) criterion: loss function to backpropagate on
     @param (torch.optim.[...]) optimizer: optimization algorithm
-    @param (str) device: 'cpu' or 'gpu', decides where to store the outputted tensors
+    @param (torch.device) device: 'cpu' or 'gpu', decides where to store the outputted tensors
     @param (bool) include_bert_masks: whether to include token type IDs & attention masks alongside
            input IDs when passing to model or not (default: True)
     """
@@ -68,7 +68,7 @@ def test(model, iterator, criterion, device, include_bert_masks=True):
     @param (torch.nn.Module) model: model object to be trained
     @param (torch.utils.data.DataLoader) iterator: data loader to iterate over batches
     @param (torch.nn.[...]) criterion: loss function to backpropagate on
-    @param (str) device: 'cpu' or 'gpu', decides where to store the outputted tensors
+    @param (torch.device) device: 'cpu' or 'gpu', decides where to store the outputted tensors
     @param (bool) include_bert_masks: whether to include token type IDs & attention masks alongside
            input IDs when passing to model or not (default: True)
     """
@@ -168,7 +168,7 @@ def get_normalized_attention(model, raw_sentence, method='last_layer_heads_avera
            from attention weights computation or not (default: True)
     @param (str) normalization_method: the normalization method to be applied on attention weights,
            possible values include 'min-max' and 'normal' (default: 'normal')
-    @param (str) device: 'cpu' or 'gpu', decides where to store the outputted tensors
+    @param (torch.device) device: 'cpu' or 'gpu', decides where to store the outputted tensors
     """
     if None in [n, m, k] and method == 'custom':
         raise ValueError("Must pass integer argument for params @n, @m, and @k " +
