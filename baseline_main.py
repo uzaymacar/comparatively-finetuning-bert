@@ -70,25 +70,30 @@ else:
                       dropout_rate=DROPOUT_RATE,
                       use_gpu=True if torch.cuda.is_available() else False)
 
+# Initialize train & test datasets
+train_dataset = IMDBDataset(input_directory='aclImdb/train',
+                            tokenizer=model.get_tokenizer(),
+                            apply_cleaning=False,
+                            max_tokenization_length=MAX_TOKENIZATION_LENGTH,
+                            truncation_method='head-only',
+                            device=DEVICE)
+
+test_dataset = IMDBDataset(input_directory='aclImdb/test',
+                           tokenizer=model.get_tokenizer(),
+                           apply_cleaning=False,
+                           max_tokenization_length=MAX_TOKENIZATION_LENGTH,
+                           truncation_method='head-only',
+                           device=DEVICE)
 
 # Acquire iterators through data loaders
-train_loader = DataLoader(dataset=IMDBDataset(input_directory='aclImdb/train',
-                                              tokenizer=model.get_tokenizer(),
-                                              apply_cleaning=False,
-                                              max_tokenization_length=MAX_TOKENIZATION_LENGTH,
-                                              truncation_method='head-only',
-                                              device=DEVICE),
+train_loader = DataLoader(dataset=train_dataset,
                           batch_size=BATCH_SIZE,
                           shuffle=True)
 
-test_loader = DataLoader(dataset=IMDBDataset(input_directory='aclImdb/test',
-                                             tokenizer=model.get_tokenizer(),
-                                             apply_cleaning=False,
-                                             max_tokenization_length=MAX_TOKENIZATION_LENGTH,
-                                             truncation_method='head-only',
-                                             device=DEVICE),
+test_loader = DataLoader(dataset=test_dataset,
                          batch_size=BATCH_SIZE,
                          shuffle=False)
+
 # Define loss function
 criterion = nn.CrossEntropyLoss()
 

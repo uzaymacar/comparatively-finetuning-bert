@@ -80,26 +80,28 @@ model = FineTunedBert(pretrained_model_name=PRETRAINED_MODEL_NAME,
                       concatenate_hidden_states=CONCATENATE_HIDDEN_STATES,
                       use_gpu=True if torch.cuda.is_available() else False)
 
-# Get tokenizer info
-tokenizer = model.get_tokenizer()
+# Initialize train & test datasets
+train_dataset = IMDBDataset(input_directory='data/aclImdb/train',
+                            tokenizer=model.get_tokenizer(),
+                            apply_cleaning=APPLY_CLEANING,
+                            max_tokenization_length=MAX_TOKENIZATION_LENGTH,
+                            truncation_method=TRUNCATION_METHOD,
+                            device=DEVICE)
+
+test_dataset = IMDBDataset(input_directory='data/aclImdb/test',
+                           tokenizer=model.get_tokenizer(),
+                           apply_cleaning=APPLY_CLEANING,
+                           max_tokenization_length=MAX_TOKENIZATION_LENGTH,
+                           truncation_method=TRUNCATION_METHOD,
+                           device=DEVICE)
 
 # Acquire iterators through data loaders
-train_loader = DataLoader(dataset=IMDBDataset(input_directory='data/aclImdb/train',
-                                              tokenizer=model.get_tokenizer(),
-                                              apply_cleaning=APPLY_CLEANING,
-                                              max_tokenization_length=MAX_TOKENIZATION_LENGTH,
-                                              truncation_method=TRUNCATION_METHOD,
-                                              device=DEVICE),
+train_loader = DataLoader(dataset=train_dataset,
                           batch_size=BATCH_SIZE,
                           shuffle=True,
                           num_workers=NUM_WORKERS)
 
-test_loader = DataLoader(dataset=IMDBDataset(input_directory='data/aclImdb/test',
-                                             tokenizer=model.get_tokenizer(),
-                                             apply_cleaning=APPLY_CLEANING,
-                                             max_tokenization_length=MAX_TOKENIZATION_LENGTH,
-                                             truncation_method=TRUNCATION_METHOD,
-                                             device=DEVICE),
+test_loader = DataLoader(dataset=test_dataset,
                          batch_size=BATCH_SIZE,
                          shuffle=False,
                          num_workers=NUM_WORKERS)
