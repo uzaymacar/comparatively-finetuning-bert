@@ -10,7 +10,7 @@ We hope that this work could help other people reduce their training time, fit t
 Please note that the performance measures and any accompanying findings have been solely formulated on the classic [IMDB](https://ai.stanford.edu/~amaas/data/sentiment/) dataset, and hence within a **binary sentiment classification** framework. We are *planning* to include more datasets in the near future for a more general & qualitative comparison.
 
 ## Setting Up
-1. Clone this repository: `git clone https://github.com/ongunuzaymacar/comparatively-finetuning-bert.git`
+1. Clone this repository: `git clone https://github.com/uzaymacar/comparatively-finetuning-bert.git`
 2. Install PyTorch [(installation)](https://pytorch.org/get-started/locally/)
 3. Install Pytorch-Transformers: `pip install pytorch_transformers`
 4. Download the IMDB dataset: `bash download_imdb_dataset.sh`
