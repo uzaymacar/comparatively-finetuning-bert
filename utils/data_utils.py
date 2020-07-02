@@ -114,7 +114,7 @@ def get_features(input_ids, tokenizer, device):
         if input_ids.shape[0] == 1:
             input_ids_example = input_ids.squeeze().tolist()
         # Get padding information
-        padding_token_id = tokenizer.encode('[PAD]')[0]
+        padding_token_id = tokenizer.convert_tokens_to_ids('[PAD]')
         padding_length = input_ids_example.count(padding_token_id)
         text_length = len(input_ids_example) - padding_length
 
